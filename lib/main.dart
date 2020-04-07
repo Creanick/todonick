@@ -11,6 +11,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<TodoProvider>(
-        create: (_) => TodoProvider(), child: MaterialApp(home: HomeScreen()));
+        create: (_) => TodoProvider(),
+        child: MaterialApp(
+          theme: ThemeData.light().copyWith(primaryColor: Colors.blueAccent),
+          home: HomeScreen(),
+          debugShowCheckedModeBanner: false,
+        ));
   }
 }
