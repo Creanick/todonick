@@ -1,16 +1,25 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:todonick/db_paths.dart';
 import 'package:todonick/models/todo.dart';
 import 'package:uuid/uuid.dart';
 
 class TodoProvider with ChangeNotifier {
+  CollectionReference _storeCollection =
+      Firestore.instance.collection(todoCollectionName);
   List<Todo> _todos;
   List<Todo> _completedTodos;
   //create
   TodoProvider()
       : _todos = [],
         _completedTodos = [] {
-    this.addTodo(name: "Buy pc");
-    this.addTodo(name: "Play football");
+    _storeCollection.getDocuments().then((querySnapshot) {
+      final List<DocumentSnapshot> documents = querySnapshot.documents;
+      documents.forEach((document) {
+        _todos.add(Todo.fromMap(document.documentID, document.data));
+      });
+      notifyListeners();
+    });
   }
   void addTodo(
       {@required String name,
@@ -26,6 +35,7 @@ class TodoProvider with ChangeNotifier {
         details: details,
         reminder: reminder);
     _todos.insert(insertAtFirst ? 0 : _todos.length, todo);
+    _storeCollection.document(id).setData(todo.toMap());
     notifyListeners();
   }
 
@@ -60,22 +70,27 @@ class TodoProvider with ChangeNotifier {
   void renameTodo(int index, String name) {
     if (!isIndexExist(index)) return;
     _todos[index].rename(name);
+    _storeCollection.document(_todos[index].id).updateData({"name": name});
     notifyListeners();
   }
 
   void completeTodo(int index) {
     if (!isIndexExist(index)) return;
-    final Todo completedTodo = deleteTodo(index);
+    final Todo completedTodo = _todos.removeAt(index);
     completedTodo.complete();
     _completedTodos.add(completedTodo);
+    _storeCollection.document(completedTodo.id).updateData({"completed": true});
     notifyListeners();
   }
 
   void deCompleteTodo(int index) {
     if (!isIndexExist(index, isCompletedList: true)) return;
-    final Todo nonCompletedTodo = deleteTodo(index, isCompletedList: true);
+    final Todo nonCompletedTodo = _completedTodos.removeAt(index);
     nonCompletedTodo.deComplete();
     _todos.insert(0, nonCompletedTodo);
+    _storeCollection
+        .document(nonCompletedTodo.id)
+        .updateData({"completed": false});
     notifyListeners();
   }
 
@@ -85,6 +100,7 @@ class TodoProvider with ChangeNotifier {
     final Todo removedTodo = isCompletedList
         ? _completedTodos.removeAt(index)
         : _todos.removeAt(index);
+    _storeCollection.document(removedTodo.id).delete();
     notifyListeners();
     return removedTodo;
   }
