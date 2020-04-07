@@ -4,8 +4,11 @@ import 'package:uuid/uuid.dart';
 
 class TodoProvider with ChangeNotifier {
   List<Todo> _todos;
+  List<Todo> _completedTodos;
   //create
-  TodoProvider() : _todos = [] {
+  TodoProvider()
+      : _todos = [],
+        _completedTodos = [] {
     this.addTodo(name: "Buy pc");
     this.addTodo(name: "Play football");
   }
@@ -27,13 +30,16 @@ class TodoProvider with ChangeNotifier {
   }
 
   //private
-  bool isIndexExist(int index) {
-    return index < _todos.length && index >= 0;
+  bool isIndexExist(int index, {bool isCompletedList = false}) {
+    final List<Todo> todoList = isCompletedList ? _completedTodos : _todos;
+    return index < todoList.length && index >= 0;
   }
 
   //read
-  List<Todo> get todoList => [..._todos];
-  bool get isTodoListEmpty => _todos.isEmpty;
+  List<Todo> get todoList => [..._todos, ..._completedTodos];
+  List<Todo> get nonCompletedTodoList => [..._todos];
+  List<Todo> get completedTodoList => [..._completedTodos];
+  bool get isTodoListEmpty => _todos.isEmpty && _completedTodos.isEmpty;
 
   //update
   void moveTodo(int oldIndex, int newIndex) {
@@ -45,11 +51,9 @@ class TodoProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateTodo(int index,
-      {String name, String details, DateTime reminder, bool completed}) {
+  void updateTodo(int index, {String name, String details, DateTime reminder}) {
     if (!isIndexExist(index)) return;
-    _todos[index].update(
-        name: name, details: details, reminder: reminder, completed: completed);
+    _todos[index].update(name: name, details: details, reminder: reminder);
     notifyListeners();
   }
 
@@ -59,28 +63,28 @@ class TodoProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleCompletionTodo(int index) {
-    if (!isIndexExist(index)) return;
-    _todos[index].toggleCompletion();
-    notifyListeners();
-  }
-
   void completeTodo(int index) {
     if (!isIndexExist(index)) return;
-    _todos[index].complete();
+    final Todo completedTodo = deleteTodo(index);
+    completedTodo.complete();
+    _completedTodos.add(completedTodo);
     notifyListeners();
   }
 
   void deCompleteTodo(int index) {
-    if (!isIndexExist(index)) return;
-    _todos[index].deComplete();
+    if (!isIndexExist(index, isCompletedList: true)) return;
+    final Todo nonCompletedTodo = deleteTodo(index, isCompletedList: true);
+    nonCompletedTodo.deComplete();
+    _todos.insert(0, nonCompletedTodo);
     notifyListeners();
   }
 
   //delete
-  Todo deleteTodo(int index) {
-    if (!isIndexExist(index)) return null;
-    final Todo removedTodo = _todos.removeAt(index);
+  Todo deleteTodo(int index, {bool isCompletedList = false}) {
+    if (!isIndexExist(index, isCompletedList: isCompletedList)) return null;
+    final Todo removedTodo = isCompletedList
+        ? _completedTodos.removeAt(index)
+        : _todos.removeAt(index);
     notifyListeners();
     return removedTodo;
   }
