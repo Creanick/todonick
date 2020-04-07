@@ -35,19 +35,18 @@ class _TodoCreatorState extends State<TodoCreator> {
   @override
   Widget build(BuildContext context) {
     final TodoProvider todoProvider = Provider.of<TodoProvider>(context);
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     return Container(
-        padding: const EdgeInsets.all(20),
+        height: 140 + keyboardHeight,
+        padding:
+            const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
         child: Column(
           children: <Widget>[
             TextField(
+              autofocus: true,
               controller: _todoNameController,
               decoration: InputDecoration(
-                  hintText: "New Task",
-                  border: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.transparent))),
-            ),
-            SizedBox(
-              height: 20,
+                  hintText: "New Task", border: InputBorder.none),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
