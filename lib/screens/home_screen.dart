@@ -12,8 +12,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool showNonCompleted = false;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   void showTodoCreatorSheet(BuildContext c) {
     showModalBottomSheet(
+        isScrollControlled: true,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10), topRight: Radius.circular(10))),
         context: c,
         builder: (ctx) {
           return TodoCreator();
@@ -22,10 +27,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final TodoProvider todoProvider = Provider.of<TodoProvider>(context);
-    final List<Todo> completedTodoList = todoProvider.completedTodoList;
-    final List<Todo> nonCompletedTodoList = todoProvider.nonCompletedTodoList;
     return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        title: Container(
+            margin: EdgeInsets.only(left: 14),
+            child: Text("My Todo List Name",
+                style: TextStyle(fontSize: 26, color: Colors.blueAccent))),
+      ),
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
@@ -33,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
+        shape: CircularNotchedRectangle(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
@@ -47,38 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      body: todoProvider.isTodoListEmpty
-          ? Center(child: Text("No Todo"))
-          : SafeArea(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: Text("My List",
-                          style: TextStyle(
-                              fontSize: 28, fontWeight: FontWeight.bold)),
-                    ),
-                    TodoListView(nonCompletedTodoList),
-                    ListTile(
-                      onTap: completedTodoList.length < 1
-                          ? null
-                          : () {
-                              setState(() {
-                                showNonCompleted = !showNonCompleted;
-                              });
-                            },
-                      title: Text("Completed (${completedTodoList.length})"),
-                      trailing: Icon(
-                          showNonCompleted && completedTodoList.length > 0
-                              ? Icons.expand_less
-                              : Icons.expand_more),
-                    ),
-                    if (showNonCompleted) TodoListView(completedTodoList)
-                  ],
-                ),
-              ),
-            ),
+      body: SafeArea(child: TodoListView()),
     );
   }
 }
