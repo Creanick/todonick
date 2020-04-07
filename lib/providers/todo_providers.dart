@@ -5,7 +5,10 @@ import 'package:uuid/uuid.dart';
 class TodoProvider with ChangeNotifier {
   List<Todo> _todos;
   //create
-  TodoProvider() : _todos = [];
+  TodoProvider() : _todos = [] {
+    this.addTodo(name: "Buy pc");
+    this.addTodo(name: "Play football");
+  }
   void addTodo(
       {@required String name,
       String details,
@@ -20,11 +23,12 @@ class TodoProvider with ChangeNotifier {
         details: details,
         reminder: reminder);
     _todos.insert(insertAtFirst ? 0 : _todos.length, todo);
+    notifyListeners();
   }
 
   //private
   bool isIndexExist(int index) {
-    return _todos.length < index && index >= 0;
+    return index < _todos.length && index >= 0;
   }
 
   //read
