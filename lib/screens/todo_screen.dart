@@ -40,7 +40,10 @@ class TodoScreen extends StatelessWidget {
             elevation: 0,
             actions: <Widget>[
               IconButton(
-                icon: Icon(Icons.delete),
+                icon: Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                ),
                 onPressed: () {
                   todoProvider.deleteTodo(index,
                       isCompletedList: todo.completed);
@@ -67,12 +70,13 @@ class TodoScreen extends StatelessWidget {
                   height: 20,
                 ),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Icon(Icons.clear_all),
                     SizedBox(
                       width: 20,
                     ),
-                    Text("Add Details")
+                    Flexible(child: Text("Add Details"))
                   ],
                 ),
                 SizedBox(
