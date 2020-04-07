@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import 'package:just_debounce_it/just_debounce_it.dart';
 import 'package:provider/provider.dart';
 import 'package:todonick/models/todo.dart';
 import 'package:todonick/providers/todo_providers.dart';
@@ -59,13 +60,23 @@ class TodoScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(todo.name,
-                    style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        decoration: todo.completed
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none)),
+                if (todo.completed)
+                  Text(todo.name,
+                      style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.lineThrough)),
+                if (!todo.completed)
+                  TextFormField(
+                    onChanged: (name) {
+                      Debounce.milliseconds(
+                          800, todoProvider.renameTodo, [index, name]);
+                      // todoProvider.renameTodo(index, name);
+                    },
+                    initialValue: todo.name,
+                    decoration: InputDecoration(border: InputBorder.none),
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  ),
                 SizedBox(
                   height: 20,
                 ),
