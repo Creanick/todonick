@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
 import 'package:todonick/models/todo.dart';
 import 'package:todonick/providers/todo_providers.dart';
+import 'package:todonick/widgets/todo_creator.dart';
 import 'package:todonick/widgets/todo_list_view.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -11,6 +12,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool showNonCompleted = false;
+  void showTodoCreatorSheet(BuildContext c) {
+    showModalBottomSheet(
+        context: c,
+        builder: (ctx) {
+          return TodoCreator();
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     final TodoProvider todoProvider = Provider.of<TodoProvider>(context);
@@ -20,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () {},
+        onPressed: () => showTodoCreatorSheet(context),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
