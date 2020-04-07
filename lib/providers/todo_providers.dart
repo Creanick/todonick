@@ -29,6 +29,7 @@ class TodoProvider with ChangeNotifier {
 
   //read
   List<Todo> get todoList => [..._todos];
+  bool get isTodoListEmpty => _todos.isEmpty;
 
   //update
   void moveTodo(int oldIndex, int newIndex) {
