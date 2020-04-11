@@ -5,9 +5,11 @@ import 'package:todonick/helpers/view_response.dart';
 import 'package:todonick/providers/view_state_provider.dart';
 import 'package:todonick/service_locator.dart';
 import 'package:todonick/services/auth_service.dart';
+import 'package:todonick/services/database_service.dart';
 
 class AuthUserProvider extends ViewStateProvider {
   AuthService _authService = locator<AuthService>();
+  DatabaseService _databaseService = locator<DatabaseService>();
   FirebaseUser _authUser;
   FirebaseUser get authUser => _authUser;
   bool get isAuthenticated => _authUser != null;
@@ -42,11 +44,12 @@ class AuthUserProvider extends ViewStateProvider {
 
   // public methods
   Future<ViewResponse<String>> signUpUser(
-      {@required String email, @required String password}) async {
+      {@required String email, @required String password, String name}) async {
     try {
       startLoader();
       final FirebaseUser user =
           await _authService.signUp(email: email, password: password);
+      await _databaseService.createUser(id: user.uid, email: email, name: name);
       _addUser(user);
       return ViewResponse(data: user.uid);
     } on Failure catch (failure) {
