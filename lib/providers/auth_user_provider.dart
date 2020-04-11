@@ -63,7 +63,7 @@ class AuthUserProvider with ChangeNotifier {
   Future<void> signInUser(
       {@required String email, @required String password}) async {
     try {
-      _setState(AuthUserState.loading);
+      _setLoader();
       final FirebaseUser user =
           await _authService.signIn(email: email, password: password);
       _addUser(user);
