@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:todonick/helpers/failure.dart';
+import 'package:todonick/helpers/view_response.dart';
 import 'package:todonick/models/user.dart';
 import 'package:todonick/providers/view_state_provider.dart';
 import 'package:todonick/service_locator.dart';
@@ -18,28 +19,32 @@ class TodoUserProvider extends ViewStateProvider {
     stopLoader();
   }
 
-  Future<void> createUser(
+  Future<ViewResponse<void>> createUser(
       {@required String id, @required String email, String name}) async {
     try {
       startLoader();
       final User user =
           await _databaseService.createUser(id: id, email: email, name: name);
       _setUser(user);
+      return ViewResponse();
     } on Failure catch (failure) {
       stopLoader();
       print(failure);
+      return ViewResponse.fromFailure(failure);
     }
   }
 
-  Future<void> fetchUser(String id) async {
-    if (id == null) return;
+  Future<ViewResponse<void>> fetchUser(String id) async {
+    if (id == null) return ViewResponse();
     startLoader();
     try {
       final User user = await _databaseService.getUser(id);
       _setUser(user);
+      return ViewResponse();
     } on Failure catch (failure) {
       stopLoader();
       print(failure);
+      return ViewResponse.fromFailure(failure);
     }
   }
 }
