@@ -35,4 +35,22 @@ class DatabaseService {
       throw Failure("fetching user failed");
     }
   }
+
+  Future<void> updateUser(
+    String id, {
+    String name,
+  }) async {
+    if (id == null) return;
+    final Map<String, dynamic> updatedMap = {};
+    if (name != null) {
+      updatedMap['name'] = name;
+    }
+    if (updatedMap.isEmpty) return;
+    try {
+      await _userCollection.document(id).updateData(updatedMap);
+    } catch (error) {
+      print(error);
+      throw Failure("updating user failed");
+    }
+  }
 }

@@ -2,14 +2,20 @@ import 'package:flutter/foundation.dart';
 
 class User {
   final String id;
-  final String name;
+  String _name;
   final String email;
-  User({@required this.id, @required this.name, @required this.email});
+  String get name => _name;
+  User({@required this.id, @required name, @required this.email})
+      : _name = name;
 
   User.fromMap(this.id, Map<String, dynamic> userMap)
-      : name = userMap['name'],
+      : _name = userMap['name'],
         email = userMap['email'];
   Map<String, dynamic> toMap() {
-    return {"name": name, "email": email};
+    return {"name": _name, "email": email};
+  }
+
+  void udpate({String name}) {
+    _name = name ?? _name;
   }
 }

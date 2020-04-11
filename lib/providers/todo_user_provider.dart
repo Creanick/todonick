@@ -51,4 +51,18 @@ class TodoUserProvider extends ViewStateProvider {
       return ViewResponse.fromFailure(failure);
     }
   }
+
+  Future<ViewResponse<String>> updateUser({String name}) async {
+    if (user == null)
+      return ViewResponse(error: true, message: "User is not available");
+    try {
+      startLoader();
+      await _databaseService.updateUser(user.id, name: name);
+      _setUser(_user..udpate(name: name));
+      return ViewResponse(data: "Updating User Successful");
+    } on Failure catch (failure) {
+      stopLoader();
+      return ViewResponse.fromFailure(failure);
+    }
+  }
 }
