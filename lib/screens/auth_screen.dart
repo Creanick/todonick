@@ -9,6 +9,7 @@ class AuthScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final email = "manickwar@gmail.com";
     final password = "mancik343";
+    final name = "manick";
     final AuthUserProvider authUserProvider =
         Provider.of<AuthUserProvider>(context);
     return Scaffold(
@@ -18,15 +19,15 @@ class AuthScreen extends StatelessWidget {
             if (authUserProvider.state == ViewState.loading)
               LinearProgressIndicator(),
             RaisedButton(
-              child: Text("register manick"),
-              onPressed: () =>
-                  authUserProvider.signUpUser(email: email, password: password),
-            ),
+                child: Text("register manick"),
+                onPressed: () async {
+                  await authUserProvider.signUpUser(
+                      email: email, password: password, name: name);
+                }),
             RaisedButton(
-              child: Text("login manick"),
-              onPressed: () =>
-                  authUserProvider.signInUser(email: email, password: password),
-            ),
+                child: Text("login manick"),
+                onPressed: () => authUserProvider.signInUser(
+                    email: email, password: password)),
           ],
         ));
   }
