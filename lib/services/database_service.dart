@@ -10,21 +10,22 @@ class DatabaseService {
     _userCollection = _store.collection(userCollectionPath);
   }
 
-  Future<void> createUser(
+  Future<User> createUser(
       {@required String id, @required String email, String name}) async {
     try {
       if (name == null) {
         name = email.split("@").first;
       }
-      await _userCollection
-          .document(id)
-          .setData(User(id: id, name: name, email: email).toMap());
+      final user = User(id: id, name: name, email: email);
+      await _userCollection.document(id).setData(user.toMap());
+      return user;
     } catch (error) {
       throw Failure("creating user failed");
     }
   }
 
   Future<User> getUser(String id) async {
+    if (id == null) return null;
     try {
       final DocumentSnapshot snapshot =
           await _userCollection.document(id).get();
