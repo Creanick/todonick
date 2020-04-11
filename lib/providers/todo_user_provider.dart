@@ -11,6 +11,10 @@ class TodoUserProvider extends ViewStateProvider {
   User _user;
   User get user => _user;
 
+  void clearUser() {
+    _user = null;
+  }
+
   TodoUserProvider([String id]) {
     fetchUser(id);
   }
