@@ -1,21 +1,18 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:todonick/helpers/failure.dart';
+import 'package:todonick/providers/view_state_provider.dart';
 import 'package:todonick/service_locator.dart';
 import 'package:todonick/services/auth_service.dart';
 
-enum AuthUserState { initial, loading, authenticated, unAuthenticated }
-
-class AuthUserProvider with ChangeNotifier {
+class AuthUserProvider extends ViewStateProvider {
   AuthService _authService = locator<AuthService>();
-  AuthUserState _state = AuthUserState.initial;
   FirebaseUser _authUser;
-  AuthUserState get state => _state;
   FirebaseUser get authUser => _authUser;
+  bool get isAuthenticated => _authUser != null;
 
   //create methods
   AuthUserProvider() {
-    _setState(AuthUserState.loading);
     _authService.currentUser.then((fUser) {
       if (fUser == null) {
         return _resetUser();
@@ -28,30 +25,22 @@ class AuthUserProvider with ChangeNotifier {
   }
 
   //private methods
-  void _setState(AuthUserState state) {
-    _state = state;
-    notifyListeners();
-  }
 
   void _resetUser() {
     _authUser = null;
-    _setState(AuthUserState.unAuthenticated);
+    stopLoader();
   }
 
   void _addUser(FirebaseUser user) {
     _authUser = user;
-    _setState(AuthUserState.authenticated);
-  }
-
-  void _setLoader() {
-    _setState(AuthUserState.loading);
+    stopLoader();
   }
 
   // public methods
   Future<void> signUpUser(
       {@required String email, @required String password}) async {
     try {
-      _setLoader();
+      startLoader();
       final FirebaseUser user =
           await _authService.signUp(email: email, password: password);
       _addUser(user);
@@ -63,7 +52,7 @@ class AuthUserProvider with ChangeNotifier {
   Future<void> signInUser(
       {@required String email, @required String password}) async {
     try {
-      _setLoader();
+      startLoader();
       final FirebaseUser user =
           await _authService.signIn(email: email, password: password);
       _addUser(user);
@@ -74,7 +63,7 @@ class AuthUserProvider with ChangeNotifier {
 
   Future<void> signOutUser() async {
     try {
-      _setLoader();
+      startLoader();
       await _authService.signOut();
       _resetUser();
     } on Failure catch (failure) {
