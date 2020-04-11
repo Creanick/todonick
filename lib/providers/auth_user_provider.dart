@@ -45,6 +45,7 @@ class AuthUserProvider extends ViewStateProvider {
           await _authService.signUp(email: email, password: password);
       _addUser(user);
     } on Failure catch (failure) {
+      stopLoader();
       print(failure);
     }
   }
@@ -57,6 +58,7 @@ class AuthUserProvider extends ViewStateProvider {
           await _authService.signIn(email: email, password: password);
       _addUser(user);
     } on Failure catch (failure) {
+      stopLoader();
       print(failure);
     }
   }
@@ -67,6 +69,7 @@ class AuthUserProvider extends ViewStateProvider {
       await _authService.signOut();
       _resetUser();
     } on Failure catch (failure) {
+      stopLoader();
       print(failure);
     }
   }
