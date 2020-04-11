@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
 import 'package:todonick/auth_router.dart';
 import 'package:todonick/providers/auth_user_provider.dart';
+import 'package:todonick/providers/todo_user_provider.dart';
 import 'package:todonick/service_locator.dart';
 
 void main() {
@@ -13,8 +14,17 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-        create: (_) => AuthUserProvider(),
+    return MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AuthUserProvider>(
+            create: (_) => AuthUserProvider(),
+          ),
+          ChangeNotifierProxyProvider<AuthUserProvider, TodoUserProvider>(
+            create: (_) => TodoUserProvider(),
+            update: (_, authUserProvider, todoUserProvider) =>
+                todoUserProvider..fetchUser(authUserProvider?.authUser?.uid),
+          ),
+        ],
         child: MaterialApp(
           home: AuthRouter(),
         ));
