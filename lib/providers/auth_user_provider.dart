@@ -13,6 +13,11 @@ class AuthUserProvider extends ViewStateProvider {
 
   //create methods
   AuthUserProvider() {
+    _tryAutoLogin();
+  }
+
+  //private methods
+  void _tryAutoLogin() {
     _authService.currentUser.then((fUser) {
       if (fUser == null) {
         return _resetUser();
@@ -23,8 +28,6 @@ class AuthUserProvider extends ViewStateProvider {
       print(error);
     });
   }
-
-  //private methods
 
   void _resetUser() {
     _authUser = null;
