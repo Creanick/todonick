@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:todonick/models/user.dart';
 import 'package:todonick/providers/todo_user_provider.dart';
 import 'package:todonick/providers/view_state_provider.dart';
+import 'package:todonick/screens/user_edit_screen.dart';
 import "../helpers/string-extensions.dart";
 
 class UserListModal extends StatelessWidget {
@@ -32,7 +33,14 @@ class UserListModal extends StatelessWidget {
                     subtitle: Text(user.email),
                     trailing: IconButton(
                       icon: Icon(Icons.edit),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                fullscreenDialog: true,
+                                builder: (_) => UserEditScreen()));
+                      },
                     ),
                   ),
                   Divider(),

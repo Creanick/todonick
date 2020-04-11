@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:todonick/auth_router.dart';
 import 'package:todonick/providers/auth_user_provider.dart';
 import 'package:todonick/providers/todo_user_provider.dart';
+import 'package:todonick/screens/user_edit_screen.dart';
 import 'package:todonick/service_locator.dart';
 
 void main() {
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           home: AuthRouter(),
+          routes: {UserEditScreen.routeName: (_) => UserEditScreen()},
         ));
   }
 }
