@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
             create: (_) => AuthUserProvider(),
           ),
           ChangeNotifierProxyProvider<AuthUserProvider, TodoUserProvider>(
+            lazy: false,
             create: (_) => TodoUserProvider(),
             update: (_, authUserProvider, todoUserProvider) =>
                 todoUserProvider..fetchUser(authUserProvider?.authUser?.uid),
