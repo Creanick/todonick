@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:todonick/helpers/failure.dart';
 import 'package:todonick/helpers/view_response.dart';
@@ -5,6 +7,7 @@ import 'package:todonick/models/user.dart';
 import 'package:todonick/providers/view_state_provider.dart';
 import 'package:todonick/service_locator.dart';
 import 'package:todonick/services/database_service.dart';
+import 'package:todonick/services/storage_service.dart';
 
 class TodoUserProvider extends ViewStateProvider {
   DatabaseService _databaseService = locator<DatabaseService>();
@@ -52,13 +55,20 @@ class TodoUserProvider extends ViewStateProvider {
     }
   }
 
-  Future<ViewResponse<String>> updateUser({String name}) async {
-    if (user == null)
+  Future<ViewResponse<String>> updateUser(
+      {String name, File profileImageFile, String profileImageName}) async {
+    if (user == null || name == null || name.isEmpty)
       return ViewResponse(error: true, message: "User is not available");
     try {
       startLoader();
-      await _databaseService.updateUser(user.id, name: name);
-      _setUser(_user..udpate(name: name));
+      String profileUrl;
+      if (profileImageFile != null && profileImageName.isNotEmpty) {
+        profileUrl = await StorageService.uploadFileAndGetUrl(
+            profileImageFile, profileImageName);
+      }
+      await _databaseService.updateUser(user.id,
+          name: name, profileUrl: profileUrl);
+      _setUser(_user..udpate(name: name, profileUrl: profileUrl));
       return ViewResponse(data: "Updating User Successful");
     } on Failure catch (failure) {
       stopLoader();

@@ -36,14 +36,14 @@ class DatabaseService {
     }
   }
 
-  Future<void> updateUser(
-    String id, {
-    String name,
-  }) async {
+  Future<void> updateUser(String id, {String name, String profileUrl}) async {
     if (id == null) return;
     final Map<String, dynamic> updatedMap = {};
     if (name != null) {
       updatedMap['name'] = name;
+    }
+    if (profileUrl != null) {
+      updatedMap['profileUrl'] = profileUrl;
     }
     if (updatedMap.isEmpty) return;
     try {
