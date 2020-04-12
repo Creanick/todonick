@@ -27,8 +27,13 @@ class UserListModal extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20)),
                   ),
                   ListTile(
-                    leading: CircleAvatar(
-                        child: Text(user.name.substring(0, 1).toUpperCase())),
+                    leading: user.profileUrl == null || user.profileUrl.isEmpty
+                        ? CircleAvatar(
+                            child:
+                                Text(user.name.substring(0, 1).toUpperCase()))
+                        : CircleAvatar(
+                            backgroundImage: NetworkImage(user.profileUrl),
+                          ),
                     title: Text(user.name.capitalize()),
                     subtitle: Text(user.email),
                     trailing: IconButton(

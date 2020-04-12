@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import "package:flutter/material.dart";
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:todonick/models/user.dart';
 import 'package:todonick/providers/todo_user_provider.dart';
 import 'package:todonick/providers/view_state_provider.dart';
 
@@ -13,6 +16,7 @@ class UserEditScreen extends StatefulWidget {
 
 class _UserEditScreenState extends State<UserEditScreen> {
   TextEditingController _nameController;
+  File _profileImage;
 
   @override
   void initState() {
@@ -26,6 +30,41 @@ class _UserEditScreenState extends State<UserEditScreen> {
   void dispose() {
     _nameController.dispose();
     super.dispose();
+  }
+
+  Future<void> pickProfileImage() async {
+    try {
+      final File imageFile =
+          await ImagePicker.pickImage(source: ImageSource.gallery);
+      File croppedFile = await ImageCropper.cropImage(
+          sourcePath: imageFile.path,
+          maxWidth: 100,
+          maxHeight: 100,
+          aspectRatioPresets: [
+            CropAspectRatioPreset.square,
+            CropAspectRatioPreset.ratio3x2,
+            CropAspectRatioPreset.original,
+            CropAspectRatioPreset.ratio4x3,
+            CropAspectRatioPreset.ratio16x9
+          ],
+          androidUiSettings: AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false,
+          ),
+          iosUiSettings: IOSUiSettings(
+            minimumAspectRatio: 1.0,
+          ));
+
+      setState(() {
+        _profileImage = croppedFile;
+      });
+    } catch (error) {
+      print('profile image picking failed');
+      print(error);
+    }
   }
 
   @override
@@ -49,8 +88,11 @@ class _UserEditScreenState extends State<UserEditScreen> {
               onPressed: () async {
                 final newName = _nameController.text;
                 if (newName.isEmpty) return;
-                final response =
-                    await todoUserProvider.updateUser(name: newName);
+                final imageName = "profile-image-${todoUserProvider.user.id}";
+                final response = await todoUserProvider.updateUser(
+                    name: newName,
+                    profileImageName: imageName,
+                    profileImageFile: _profileImage);
                 if (response.error) {
                   Scaffold.of(ctx).showSnackBar(SnackBar(
                     content: Text(response.message),
@@ -80,7 +122,24 @@ class _UserEditScreenState extends State<UserEditScreen> {
                     decoration: InputDecoration(
                         hintText: "Your Name", border: InputBorder.none),
                   ),
-                )
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  height: 200,
+                  decoration: BoxDecoration(border: Border.all()),
+                  child: Center(
+                    child: _profileImage == null
+                        ? Text("Upload profile image")
+                        : Image.file(
+                            _profileImage,
+                            fit: BoxFit.none,
+                          ),
+                  ),
+                ),
+                RaisedButton.icon(
+                    onPressed: pickProfileImage,
+                    icon: Icon(Icons.camera),
+                    label: Text("Upload"))
               ],
             ),
     );
