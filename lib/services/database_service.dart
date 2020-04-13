@@ -86,4 +86,18 @@ class DatabaseService {
       throw Failure("todo list creation failed");
     }
   }
+
+  Future<void> deleteTodoList({String userId, String listId}) async {
+    if (userId == null || listId == null)
+      throw Failure("Todo list deletion failed");
+    try {
+      await _userCollection
+          .document(userId)
+          .collection(todoListCollectionName)
+          .document(listId)
+          .delete();
+    } catch (error) {
+      throw Failure("Todo list deletion failed");
+    }
+  }
 }

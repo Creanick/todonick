@@ -10,6 +10,8 @@ class TodoListProvider extends ViewStateProvider {
   List<TodoList> _listOfTodoList;
   List<TodoList> get todoLists => _listOfTodoList;
   int _selectedIndex = 0;
+  String _todoUserId;
+  String get todoUserId => _todoUserId;
   int get selectedIndex => _selectedIndex;
   void changeSelectedIndex(int index) {
     _selectedIndex = index;
@@ -30,6 +32,7 @@ class TodoListProvider extends ViewStateProvider {
       if (list != null || list.isNotEmpty) {
         _listOfTodoList = list;
       }
+      _todoUserId = userId;
       stopLoader();
       return ViewResponse(data: "Fetching todo lists successful");
     } on Failure catch (failure) {
@@ -52,6 +55,27 @@ class TodoListProvider extends ViewStateProvider {
     } on Failure catch (failure) {
       stopLoader();
       print(failure);
+      return ViewResponse.fromFailure(failure);
+    }
+  }
+
+  Future<ViewResponse<void>> deleteTodoList({int index, String listId}) async {
+    if (_todoUserId == null)
+      return ViewResponse(error: true, message: "User is not available");
+    final TodoList list = _listOfTodoList.removeAt(index);
+    try {
+      startLoader();
+      await _databaseService.deleteTodoList(
+          userId: _todoUserId, listId: listId);
+      if (selectedIndex >= todoLists.length) {
+        changeSelectedIndex(0);
+      }
+      stopLoader();
+      return ViewResponse(message: "Todo List deleted successfully");
+    } on Failure catch (failure) {
+      stopLoader();
+      _listOfTodoList.insert(index, list);
+      changeSelectedIndex(index);
       return ViewResponse.fromFailure(failure);
     }
   }
