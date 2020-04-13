@@ -46,12 +46,19 @@ class _TodoListEditScreenState extends State<TodoListEditScreen> {
                     : () async {
                         final name = _nameController.text;
                         if (name == null || name.isEmpty) return;
+                        FocusScope.of(ctx).requestFocus(new FocusNode());
                         final response = await todoListProvider.createTodoList(
                             todoUserProvider.user.id, name);
-                        Navigator.pop(context);
-                        Scaffold.of(ctx).showSnackBar(SnackBar(
-                          content: Text(response.message),
-                        ));
+                        if (!response.error) {
+                          final controller =
+                              Scaffold.of(ctx).showSnackBar(SnackBar(
+                            content: Text("List creation is successful"),
+                            duration: Duration(seconds: 1),
+                          ));
+                          controller.closed.then((reason) {
+                            Navigator.pop(context, !response.error);
+                          });
+                        }
                       },
               );
             })
