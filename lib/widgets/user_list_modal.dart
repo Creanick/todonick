@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
+import 'package:todonick/helpers/list_map.dart';
 import 'package:todonick/models/todo_list.dart';
 import 'package:todonick/models/user.dart';
 import 'package:todonick/providers/todo_list_provider.dart';
@@ -58,16 +59,20 @@ class UserListModal extends StatelessWidget {
                       ),
                     ),
                     Divider(),
-                    ...todoLists.map((list) {
+                    ...listMap<TodoList, Widget>(todoLists,
+                        (int index, TodoList todoList) {
                       return SizedBox(
                         height: listTileSize,
                         child: ListTile(
-                          selected: false,
-                          onTap: () {},
-                          title: Text(list.name.capitalize()),
+                          selected: todoListProvider.selectedIndex == index,
+                          onTap: () {
+                            todoListProvider.changeSelectedIndex(index);
+                            Navigator.pop(context);
+                          },
+                          title: Text(todoList.name.capitalize()),
                         ),
                       );
-                    }).toList(),
+                    }),
                     ListTile(
                         onTap: () {
                           Navigator.pop(context);

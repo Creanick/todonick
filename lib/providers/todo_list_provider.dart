@@ -9,6 +9,13 @@ class TodoListProvider extends ViewStateProvider {
   DatabaseService _databaseService = locator<DatabaseService>();
   List<TodoList> _listOfTodoList;
   List<TodoList> get todoLists => _listOfTodoList;
+  int _selectedIndex = 0;
+  int get selectedIndex => _selectedIndex;
+  void changeSelectedIndex(int index) {
+    _selectedIndex = index;
+    notifyListeners();
+  }
+
   TodoListProvider([String userId]) : _listOfTodoList = [] {
     if (userId == null) return;
     fetchTodoLists(userId);
@@ -38,7 +45,7 @@ class TodoListProvider extends ViewStateProvider {
       final TodoList todoList =
           await _databaseService.createTodoList(userId, name);
       if (todoList != null) {
-        _listOfTodoList.add(todoList);
+        _listOfTodoList.insert(0, todoList);
       }
       stopLoader();
       return ViewResponse(message: "Creating todo list successful");

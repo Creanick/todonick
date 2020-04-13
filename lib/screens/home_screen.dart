@@ -1,5 +1,10 @@
 import "package:flutter/material.dart";
+import 'package:provider/provider.dart';
+import 'package:todonick/models/todo_list.dart';
+import 'package:todonick/providers/todo_list_provider.dart';
+import 'package:todonick/providers/view_state_provider.dart';
 import 'package:todonick/widgets/user_list_modal.dart';
+import "../helpers/string-extensions.dart";
 
 class HomeScreen extends StatelessWidget {
   static const String routeName = "/home-screen";
@@ -10,22 +15,40 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final TodoListProvider todoListProvider =
+        Provider.of<TodoListProvider>(context);
+    final List<TodoList> todoLists = todoListProvider.todoLists;
+    final TodoList selectedTodoList =
+        todoLists.isEmpty ? null : todoLists[todoListProvider.selectedIndex];
     return Scaffold(
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () => showListBottomSheet(context),
-            ),
-            IconButton(
-              icon: Icon(Icons.more_vert),
-              onPressed: () {},
-            ),
-          ],
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text(selectedTodoList?.name?.capitalize() ?? ""),
+          elevation: 0,
+          // backgroundColor: Colors.white,
+          // textTheme: Theme.of(context)
+          //     .textTheme
+          //     .copyWith(title: TextStyle(color: Colors.black, fontSize: 20)),
         ),
-      ),
-    );
+        bottomNavigationBar: BottomAppBar(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              IconButton(
+                icon: Icon(Icons.menu),
+                onPressed: () => showListBottomSheet(context),
+              ),
+              IconButton(
+                icon: Icon(Icons.more_vert),
+                onPressed: () {},
+              ),
+            ],
+          ),
+        ),
+        body: todoListProvider.state == ViewState.loading
+            ? Center(child: CircularProgressIndicator())
+            : Center(
+                child: Text("No Todos available"),
+              ));
   }
 }
