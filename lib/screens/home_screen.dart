@@ -6,11 +6,35 @@ import 'package:todonick/providers/view_state_provider.dart';
 import 'package:todonick/widgets/user_list_modal.dart';
 import "../helpers/string-extensions.dart";
 
+class ListPopMenuNames {
+  static const String deleteList = "Delete List";
+  static const String renameList = "Rename List";
+  static const String signOut = "Sign Out";
+  static const List<String> nameLists = <String>[
+    deleteList,
+    renameList,
+    signOut
+  ];
+}
+
 class HomeScreen extends StatelessWidget {
   static const String routeName = "/home-screen";
 
   void showListBottomSheet(BuildContext ctx) {
     showModalBottomSheet(context: ctx, builder: (_) => UserListModal());
+  }
+
+  void popMenuHandler(String menuName, int listIndex, String selectedListId) {
+    switch (menuName) {
+      case ListPopMenuNames.deleteList:
+        deleteSelectedList(listIndex, selectedListId);
+        break;
+      default:
+    }
+  }
+
+  void deleteSelectedList(int listIndex, String listId) {
+    print("list index id: $listIndex deleting, listId: $listId");
   }
 
   @override
@@ -38,10 +62,17 @@ class HomeScreen extends StatelessWidget {
                 icon: Icon(Icons.menu),
                 onPressed: () => showListBottomSheet(context),
               ),
-              IconButton(
-                icon: Icon(Icons.more_vert),
-                onPressed: () {},
-              ),
+              PopupMenuButton<String>(
+                onSelected: (String menuName) => popMenuHandler(menuName,
+                    todoListProvider.selectedIndex, selectedTodoList.id),
+                itemBuilder: (ctx) {
+                  return ListPopMenuNames.nameLists.map((name) {
+                    return PopupMenuItem<String>(
+                        child: Text(name, style: TextStyle(fontSize: 14)),
+                        value: name);
+                  }).toList();
+                },
+              )
             ],
           ),
         ),
