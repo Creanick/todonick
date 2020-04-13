@@ -76,6 +76,7 @@ class HomeScreen extends StatelessWidget {
                 onPressed: () => showListBottomSheet(context),
               ),
               PopupMenuButton<String>(
+                enabled: todoLists.isNotEmpty,
                 onSelected: (String menuName) =>
                     popMenuHandler(context, menuName),
                 itemBuilder: (ctx) {

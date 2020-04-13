@@ -34,7 +34,7 @@ class _TodoListEditScreenState extends State<TodoListEditScreen> {
         Provider.of<TodoUserProvider>(context, listen: false);
     return Scaffold(
         appBar: AppBar(
-          title: Text("List Edit"),
+          title: Text("Create List"),
           centerTitle: true,
           elevation: 0,
           actions: <Widget>[
