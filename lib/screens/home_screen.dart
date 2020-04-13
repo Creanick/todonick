@@ -24,17 +24,25 @@ class HomeScreen extends StatelessWidget {
     showModalBottomSheet(context: ctx, builder: (_) => UserListModal());
   }
 
-  void popMenuHandler(String menuName, int listIndex, String selectedListId) {
+  void popMenuHandler(BuildContext context, String menuName) {
     switch (menuName) {
       case ListPopMenuNames.deleteList:
-        deleteSelectedList(listIndex, selectedListId);
+        deleteSelectedList(context);
         break;
       default:
     }
   }
 
-  void deleteSelectedList(int listIndex, String listId) {
-    print("list index id: $listIndex deleting, listId: $listId");
+  void deleteSelectedList(BuildContext context) {
+    final TodoListProvider todoListProvider =
+        Provider.of<TodoListProvider>(context, listen: false);
+    final List<TodoList> todoLists = todoListProvider.todoLists;
+    final TodoList selectedTodoList =
+        todoLists.isEmpty ? null : todoLists[todoListProvider.selectedIndex];
+    if (selectedTodoList == null) return;
+    final listIndex = todoListProvider.selectedIndex;
+    final listId = selectedTodoList.id;
+    todoListProvider.deleteTodoList(index: listIndex, listId: listId);
   }
 
   @override
@@ -42,18 +50,23 @@ class HomeScreen extends StatelessWidget {
     final TodoListProvider todoListProvider =
         Provider.of<TodoListProvider>(context);
     final List<TodoList> todoLists = todoListProvider.todoLists;
-    final TodoList selectedTodoList =
-        todoLists.isEmpty ? null : todoLists[todoListProvider.selectedIndex];
+    final TodoList selectedTodoList = todoLists.isEmpty
+        ? null
+        : todoLists[todoListProvider.selectedIndex < todoLists.length
+            ? todoListProvider.selectedIndex
+            : 0];
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text(selectedTodoList?.name?.capitalize() ?? ""),
-          elevation: 0,
-          // backgroundColor: Colors.white,
-          // textTheme: Theme.of(context)
-          //     .textTheme
-          //     .copyWith(title: TextStyle(color: Colors.black, fontSize: 20)),
-        ),
+        appBar: todoLists.isEmpty
+            ? null
+            : AppBar(
+                centerTitle: true,
+                title: Text(selectedTodoList?.name?.capitalize() ?? ""),
+                elevation: 0,
+                // backgroundColor: Colors.white,
+                // textTheme: Theme.of(context)
+                //     .textTheme
+                //     .copyWith(title: TextStyle(color: Colors.black, fontSize: 20)),
+              ),
         bottomNavigationBar: BottomAppBar(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -63,8 +76,8 @@ class HomeScreen extends StatelessWidget {
                 onPressed: () => showListBottomSheet(context),
               ),
               PopupMenuButton<String>(
-                onSelected: (String menuName) => popMenuHandler(menuName,
-                    todoListProvider.selectedIndex, selectedTodoList.id),
+                onSelected: (String menuName) =>
+                    popMenuHandler(context, menuName),
                 itemBuilder: (ctx) {
                   return ListPopMenuNames.nameLists.map((name) {
                     return PopupMenuItem<String>(
@@ -76,10 +89,14 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
         ),
-        body: todoListProvider.state == ViewState.loading
-            ? Center(child: CircularProgressIndicator())
-            : Center(
-                child: Text("No Todos available"),
-              ));
+        body: todoLists.isEmpty
+            ? Center(
+                child: Text("No List available"),
+              )
+            : todoListProvider.state == ViewState.loading
+                ? Center(child: CircularProgressIndicator())
+                : Center(
+                    child: Text("No Todos available"),
+                  ));
   }
 }
