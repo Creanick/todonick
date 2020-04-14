@@ -12,6 +12,7 @@ class TodoProvider extends ViewStateProvider {
   String _listId;
   List<Todo> _nonCompletedTodos;
   List<Todo> _completedTodos;
+  bool isFetchedAlready = false;
 
   bool get isUserIdAvailable => _userId != null;
 
@@ -48,6 +49,7 @@ class TodoProvider extends ViewStateProvider {
   }
 
   Future<ViewResponse<void>> fetchTodos() async {
+    if (isFetchedAlready) return null;
     if (_userId == null || _listId == null)
       return ViewResponse(
           error: true, message: "User or user list is no available");
@@ -65,6 +67,7 @@ class TodoProvider extends ViewStateProvider {
           }
         });
       }
+      isFetchedAlready = true;
       stopLoader();
       return ViewResponse(message: "All todos fetched successfully");
     } on Failure catch (failure) {
@@ -84,5 +87,12 @@ class TodoProvider extends ViewStateProvider {
     } catch (error) {
       throw Failure("Deleting all todos failed");
     }
+  }
+
+  @override
+  void dispose() {
+    _completedTodos.clear();
+    _nonCompletedTodos.clear();
+    super.dispose();
   }
 }
