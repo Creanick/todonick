@@ -10,27 +10,20 @@ class TodoProvider extends ViewStateProvider {
   DatabaseService _databaseService = locator<DatabaseService>();
   String _userId;
   String _listId;
-  List<Todo> _nonCompletedTodos;
-  List<Todo> _completedTodos;
+  List<Todo> _todos = [];
+  List<Todo> get todos => _todos;
   bool isFetchedAlready = false;
 
   bool get isUserIdAvailable => _userId != null;
 
-  List<Todo> get nonCompletedTodos => _nonCompletedTodos;
-  List<Todo> get completedTodos => _completedTodos;
-
-  bool get isEmpty => _nonCompletedTodos.isEmpty && _completedTodos.isEmpty;
-
   void addTodo(Todo todo) {
-    _nonCompletedTodos.insert(0, todo);
+    _todos.insert(0, todo);
     stopLoader();
   }
 
   TodoProvider({@required String userId, @required String listId})
       : _userId = userId,
-        _listId = listId,
-        _nonCompletedTodos = [],
-        _completedTodos = [];
+        _listId = listId;
 
   Future<ViewResponse<void>> createTodo(
       {@required String name, String details}) async {
@@ -56,16 +49,10 @@ class TodoProvider extends ViewStateProvider {
     try {
       print("fetching");
       startLoader();
-      final List<Todo> todos =
+      final List<Todo> todosList =
           await _databaseService.getTodos(userId: _userId, listId: _listId);
       if (todos != null || todos.isNotEmpty) {
-        todos.forEach((todo) {
-          if (todo.completed) {
-            _completedTodos.add(todo);
-          } else {
-            _nonCompletedTodos.add(todo);
-          }
-        });
+        _todos = todosList;
       }
       isFetchedAlready = true;
       stopLoader();
@@ -78,10 +65,7 @@ class TodoProvider extends ViewStateProvider {
 
   Future<void> deleteAllTodos() async {
     try {
-      _nonCompletedTodos.forEach((todo) async {
-        await todo.documentReference.delete();
-      });
-      _completedTodos.forEach((todo) async {
+      _todos.forEach((todo) async {
         await todo.documentReference.delete();
       });
     } catch (error) {
@@ -91,8 +75,7 @@ class TodoProvider extends ViewStateProvider {
 
   @override
   void dispose() {
-    _completedTodos.clear();
-    _nonCompletedTodos.clear();
+    _todos.clear();
     super.dispose();
   }
 }
