@@ -56,7 +56,6 @@ class _TodoListEditScreenState extends State<TodoListEditScreen> {
                             duration: Duration(seconds: 1),
                           ));
                           controller.closed.then((reason) {
-                            todoListProvider.changeSelectedIndex(0);
                             Navigator.pop(context, !response.error);
                           });
                         }

@@ -2,7 +2,9 @@ import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
 import 'package:todonick/models/todo_list.dart';
 import 'package:todonick/providers/todo_list_provider.dart';
+import 'package:todonick/providers/todo_provider.dart';
 import 'package:todonick/providers/view_state_provider.dart';
+import 'package:todonick/widgets/todo_list_view.dart';
 import 'package:todonick/widgets/user_list_modal.dart';
 import "../helpers/string-extensions.dart";
 
@@ -55,49 +57,70 @@ class HomeScreen extends StatelessWidget {
         : todoLists[todoListProvider.selectedIndex < todoLists.length
             ? todoListProvider.selectedIndex
             : 0];
-    return Scaffold(
-        appBar: todoLists.isEmpty
-            ? null
-            : AppBar(
-                centerTitle: true,
-                title: Text(selectedTodoList?.name?.capitalize() ?? ""),
-                elevation: 0,
-                // backgroundColor: Colors.white,
-                // textTheme: Theme.of(context)
-                //     .textTheme
-                //     .copyWith(title: TextStyle(color: Colors.black, fontSize: 20)),
-              ),
-        bottomNavigationBar: BottomAppBar(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              IconButton(
-                icon: Icon(Icons.menu),
-                onPressed: () => showListBottomSheet(context),
-              ),
-              PopupMenuButton<String>(
-                enabled: todoLists.isNotEmpty,
-                onSelected: (String menuName) =>
-                    popMenuHandler(context, menuName),
-                itemBuilder: (ctx) {
-                  return ListPopMenuNames.nameLists.map((name) {
-                    return PopupMenuItem<String>(
-                        child: Text(name, style: TextStyle(fontSize: 14)),
-                        value: name);
-                  }).toList();
-                },
-              )
-            ],
+    return ChangeNotifierProvider<TodoProvider>.value(
+      value: todoListProvider.getTodoProvider(),
+      child: Scaffold(
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerDocked,
+          floatingActionButton:
+              Consumer<TodoProvider>(builder: (context, todoProvider, c) {
+            return FloatingActionButton(
+              child: Icon(Icons.add),
+              onPressed: (todoProvider == null)
+                  ? null
+                  : () async {
+                      final response = await todoProvider.createTodo(
+                          name: "Buy second list todo");
+                      if (response.error) {
+                        print("response error : ${response.message}");
+                      }
+                    },
+            );
+          }),
+          appBar: todoLists.isEmpty
+              ? null
+              : AppBar(
+                  centerTitle: true,
+                  title: Text(selectedTodoList?.name?.capitalize() ?? ""),
+                  elevation: 0,
+                  // backgroundColor: Colors.white,
+                  // textTheme: Theme.of(context)
+                  //     .textTheme
+                  //     .copyWith(title: TextStyle(color: Colors.black, fontSize: 20)),
+                ),
+          bottomNavigationBar: BottomAppBar(
+            shape: CircularNotchedRectangle(),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.menu),
+                  onPressed: () => showListBottomSheet(context),
+                ),
+                PopupMenuButton<String>(
+                  enabled: todoLists.isNotEmpty,
+                  onSelected: (String menuName) =>
+                      popMenuHandler(context, menuName),
+                  itemBuilder: (ctx) {
+                    return ListPopMenuNames.nameLists.map((name) {
+                      return PopupMenuItem<String>(
+                          child: Text(name, style: TextStyle(fontSize: 14)),
+                          value: name);
+                    }).toList();
+                  },
+                )
+              ],
+            ),
           ),
-        ),
-        body: todoLists.isEmpty
-            ? Center(
-                child: Text("No List available"),
-              )
-            : todoListProvider.state == ViewState.loading
-                ? Center(child: CircularProgressIndicator())
-                : Center(
-                    child: Text("No Todos available"),
-                  ));
+          body: todoLists.isEmpty
+              ? Center(
+                  child: Text("No List available"),
+                )
+              : todoListProvider.state == ViewState.loading
+                  ? Center(child: CircularProgressIndicator())
+                  : Center(
+                      child: TodoListView(),
+                    )),
+    );
   }
 }
