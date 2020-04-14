@@ -4,8 +4,6 @@ import 'package:todonick/providers/todo_provider.dart';
 import 'package:todonick/providers/view_state_provider.dart';
 
 class TodoCreateModal extends StatefulWidget {
-  final TodoProvider todoProvider;
-  TodoCreateModal(this.todoProvider);
   @override
   _TodoCreateModalState createState() => _TodoCreateModalState();
 }
@@ -27,6 +25,8 @@ class _TodoCreateModalState extends State<TodoCreateModal> {
   @override
   Widget build(BuildContext context) {
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final TodoProvider todoProvider = Provider.of<TodoProvider>(context);
+    print(todoProvider.state);
     return Container(
         height: 140 + keyboardHeight,
         padding:
@@ -45,19 +45,19 @@ class _TodoCreateModalState extends State<TodoCreateModal> {
                 Icon(Icons.event_available),
                 FlatButton(
                   child: Text("Save", style: TextStyle(color: Colors.blue)),
-                  onPressed: widget.todoProvider.state == ViewState.loading
+                  onPressed: todoProvider.state == ViewState.loading
                       ? null
                       : () async {
                           final name = _nameController.text;
                           if (name == null || name.isEmpty) return;
                           final response =
-                              await widget.todoProvider.createTodo(name: name);
+                              await todoProvider.createTodo(name: name);
                           Navigator.pop(context, !response.error);
                         },
                 )
               ],
             ),
-            if (widget.todoProvider.state == ViewState.loading)
+            if (todoProvider.state == ViewState.loading)
               SizedBox(height: 4, child: LinearProgressIndicator())
           ],
         ));

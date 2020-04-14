@@ -77,16 +77,15 @@ class HomeScreen extends StatelessWidget {
               Consumer<TodoProvider>(builder: (ctx, todoProvider, c) {
             return FloatingActionButton(
               child: Icon(Icons.add),
-              onPressed: (todoProvider == null)
-                  ? null
-                  : () {
-                      showModalBottomSheet(
-                          isScrollControlled: true,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          context: ctx,
-                          builder: (_) => TodoCreateModal(todoProvider));
-                    },
+              onPressed: () {
+                showModalBottomSheet(
+                    isScrollControlled: true,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    context: context,
+                    builder: (_) => ChangeNotifierProvider.value(
+                        value: todoProvider, child: TodoCreateModal()));
+              },
             );
           }),
           appBar: todoLists.isEmpty
