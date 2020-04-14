@@ -21,8 +21,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
   @override
   void initState() {
     _nameController = TextEditingController();
-    _nameController.text =
-        Provider.of<TodoUserProvider>(context, listen: false).user?.name ?? "";
     super.initState();
   }
 
@@ -71,6 +69,7 @@ class _UserEditScreenState extends State<UserEditScreen> {
   Widget build(BuildContext context) {
     final TodoUserProvider todoUserProvider =
         Provider.of<TodoUserProvider>(context, listen: true);
+    final String userName = todoUserProvider?.user?.name ?? "";
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -98,6 +97,8 @@ class _UserEditScreenState extends State<UserEditScreen> {
                     content: Text(response.message),
                   ));
                 } else {
+                  _nameController.clear();
+                  _nameController.dispose();
                   Navigator.pop(context);
                 }
               },
@@ -117,7 +118,10 @@ class _UserEditScreenState extends State<UserEditScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: TextFormField(
-                    controller: _nameController,
+                    controller: _nameController
+                      ..text = userName
+                      ..selection =
+                          TextSelection.collapsed(offset: userName.length),
                     autofocus: true,
                     decoration: InputDecoration(
                         hintText: "Your Name", border: InputBorder.none),
