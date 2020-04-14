@@ -35,6 +35,10 @@ class Todo {
     _completed = completed ?? _completed;
   }
 
+  void toggleComplete() {
+    this.update(completed: !_completed);
+  }
+
   void complete() {
     this.update(completed: true);
   }

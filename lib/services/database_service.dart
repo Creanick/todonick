@@ -163,4 +163,32 @@ class DatabaseService {
       throw Failure("Fetching todos failed");
     }
   }
+
+  Future<void> updateTodo(
+      {@required userId,
+      @required String listId,
+      @required String todoId,
+      String name,
+      String details,
+      bool completed}) async {
+    if (userId == null || listId == null || todoId == null)
+      throw Failure("userid or list id is not provided");
+    try {
+      final Map<String, dynamic> updatedMap = {};
+      if (name != null) {
+        updatedMap['name'] = name;
+      }
+      if (details != null) {
+        updatedMap['details'] = details;
+      }
+      if (completed != null) {
+        updatedMap['completed'] = completed;
+      }
+      if (updatedMap.isNotEmpty) {
+        await getTodoDocument(userId, listId, todoId).updateData(updatedMap);
+      }
+    } catch (error) {
+      throw Failure("compeleting todo failed");
+    }
+  }
 }

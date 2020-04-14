@@ -9,16 +9,15 @@ class TodoListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TodoProvider todoProvider = Provider.of<TodoProvider>(context);
-    final List<Todo> _nonCompletedTodos = todoProvider.nonCompletedTodos;
-    print(_nonCompletedTodos);
+    final List<Todo> todos = todoProvider.todos;
     return todoProvider.state == ViewState.loading
         ? Center(
             child: Text("Todos loading..."),
           )
-        : todoProvider.isEmpty
+        : todos.isEmpty
             ? Center(child: Text("No Todos"))
-            : ListView(
-                children:
-                    _nonCompletedTodos.map((todo) => TodoTile(todo)).toList());
+            : ListView.builder(
+                itemBuilder: (ctx, index) => TodoTile(todos[index], index),
+                itemCount: todos.length);
   }
 }

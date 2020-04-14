@@ -73,6 +73,25 @@ class TodoProvider extends ViewStateProvider {
     }
   }
 
+  Future<ViewResponse<void>> toggleComplete(int index) async {
+    if (index >= todos.length)
+      return ViewResponse(error: true, message: "Something went wrong");
+    final Todo updatableTodo = _todos[index];
+    try {
+      startLoader();
+      await _databaseService.updateTodo(
+          userId: _userId,
+          listId: _listId,
+          todoId: updatableTodo.id,
+          completed: !updatableTodo.completed);
+      updatableTodo.toggleComplete();
+      stopLoader();
+      return ViewResponse(message: "Todo completed successfully");
+    } on Failure catch (failure) {
+      return ViewResponse.fromFailure(failure);
+    }
+  }
+
   @override
   void dispose() {
     _todos.clear();
