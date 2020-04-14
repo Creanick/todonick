@@ -43,16 +43,13 @@ class _TodoListViewState extends State<TodoListView> {
                   }
                   if (index == nonLength) {
                     return ListTile(
-                        trailing: IconButton(
-                          icon: Icon(isExpanded
-                              ? Icons.expand_less
-                              : Icons.expand_more),
-                          onPressed: () {
-                            setState(() {
-                              isExpanded = !isExpanded;
-                            });
-                          },
-                        ),
+                        onTap: () {
+                          setState(() {
+                            isExpanded = !isExpanded;
+                          });
+                        },
+                        trailing: Icon(
+                            isExpanded ? Icons.expand_less : Icons.expand_more),
                         title: Text("Completed (${completedTodoTile.length})"));
                   }
                   final completedIndex = index - nonLength - 1;
