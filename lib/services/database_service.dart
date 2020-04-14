@@ -134,8 +134,11 @@ class DatabaseService {
     try {
       final DocumentReference docRef =
           getTodoCollection(userId, listId).document();
-      final Todo todo =
-          Todo(id: docRef.documentID, name: name, details: details);
+      final Todo todo = Todo(
+          id: docRef.documentID,
+          name: name,
+          details: details,
+          documentReference: docRef);
       await docRef.setData(todo.toMap());
       return todo;
     } catch (error) {
@@ -153,7 +156,8 @@ class DatabaseService {
           await getTodoCollection(userId, listId).getDocuments();
       if (querySnapshot == null) return [];
       return querySnapshot.documents.map((docSnap) {
-        return Todo.fromMap(docSnap.documentID, docSnap.data);
+        return Todo.fromMap(
+            docSnap.documentID, docSnap.data, docSnap.reference);
       }).toList();
     } catch (error) {
       throw Failure("Fetching todos failed");

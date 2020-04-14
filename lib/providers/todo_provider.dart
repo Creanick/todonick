@@ -72,4 +72,17 @@ class TodoProvider extends ViewStateProvider {
       return ViewResponse.fromFailure(failure);
     }
   }
+
+  Future<void> deleteAllTodos() async {
+    try {
+      _nonCompletedTodos.forEach((todo) async {
+        await todo.documentReference.delete();
+      });
+      _completedTodos.forEach((todo) async {
+        await todo.documentReference.delete();
+      });
+    } catch (error) {
+      throw Failure("Deleting all todos failed");
+    }
+  }
 }

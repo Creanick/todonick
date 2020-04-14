@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 class Todo {
@@ -5,17 +6,22 @@ class Todo {
   String _name;
   bool _completed;
   String _details;
+  final DocumentReference documentReference;
 
   String get name => _name;
   bool get completed => _completed;
   String get details => _details;
 
-  Todo({@required this.id, @required String name, String details = ""})
+  Todo(
+      {@required this.id,
+      @required String name,
+      String details = "",
+      @required this.documentReference})
       : _name = name,
         _completed = false,
         _details = details;
 
-  Todo.fromMap(this.id, Map<String, dynamic> todoMap)
+  Todo.fromMap(this.id, Map<String, dynamic> todoMap, this.documentReference)
       : _name = todoMap['name'],
         _completed = todoMap['completed'] ?? false,
         _details = todoMap['details'] ?? "";

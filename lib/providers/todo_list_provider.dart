@@ -89,6 +89,8 @@ class TodoListProvider extends ViewStateProvider {
       startLoader();
       await _databaseService.deleteTodoList(
           userId: _todoUserId, listId: listId);
+      await removeTodoProvider.deleteAllTodos();
+      removeTodoProvider.dispose();
       if (selectedIndex >= todoLists.length) {
         changeSelectedIndex(0);
       }
