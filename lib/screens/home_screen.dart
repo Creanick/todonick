@@ -5,6 +5,7 @@ import 'package:todonick/providers/auth_user_provider.dart';
 import 'package:todonick/providers/todo_list_provider.dart';
 import 'package:todonick/providers/todo_provider.dart';
 import 'package:todonick/providers/view_state_provider.dart';
+import 'package:todonick/widgets/todo_create_modal.dart';
 import 'package:todonick/widgets/todo_list_view.dart';
 import 'package:todonick/widgets/user_list_modal.dart';
 import "../helpers/string-extensions.dart";
@@ -73,17 +74,18 @@ class HomeScreen extends StatelessWidget {
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerDocked,
           floatingActionButton:
-              Consumer<TodoProvider>(builder: (context, todoProvider, c) {
+              Consumer<TodoProvider>(builder: (ctx, todoProvider, c) {
             return FloatingActionButton(
               child: Icon(Icons.add),
               onPressed: (todoProvider == null)
                   ? null
-                  : () async {
-                      final response = await todoProvider.createTodo(
-                          name: "Buy second list todo");
-                      if (response.error) {
-                        print("response error : ${response.message}");
-                      }
+                  : () {
+                      showModalBottomSheet(
+                          isScrollControlled: true,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          context: ctx,
+                          builder: (_) => TodoCreateModal(todoProvider));
                     },
             );
           }),
@@ -122,15 +124,11 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
           ),
-          body: todoLists.isEmpty
-              ? Center(
-                  child: Text("No List available"),
-                )
-              : todoListProvider.state == ViewState.loading
-                  ? Center(child: CircularProgressIndicator())
-                  : Center(
-                      child: TodoListView(),
-                    )),
+          body: todoListProvider.state == ViewState.loading
+              ? Center(child: CircularProgressIndicator())
+              : Center(
+                  child: TodoListView(),
+                )),
     );
   }
 }
