@@ -1,4 +1,5 @@
 import 'package:todonick/helpers/failure.dart';
+import 'package:todonick/helpers/fetchable.dart';
 import 'package:todonick/helpers/view_response.dart';
 import 'package:todonick/models/todo_list.dart';
 import 'package:todonick/providers/todo_provider.dart';
@@ -6,7 +7,7 @@ import 'package:todonick/providers/view_state_provider.dart';
 import 'package:todonick/service_locator.dart';
 import 'package:todonick/services/database_service.dart';
 
-class TodoListProvider extends ViewStateProvider {
+class TodoListProvider extends ViewStateProvider with Fetchable {
   DatabaseService _databaseService = locator<DatabaseService>();
   List<TodoList> _listOfTodoList = [];
   List<TodoList> get todoLists => _listOfTodoList;
@@ -38,6 +39,7 @@ class TodoListProvider extends ViewStateProvider {
   }
 
   Future<ViewResponse<String>> fetchTodoLists(String id) async {
+    if (isAlreadyFetched) return ViewResponse(message: "already fetched");
     if (id == null)
       return ViewResponse(error: true, message: "User is not avalaible");
     try {
@@ -51,6 +53,7 @@ class TodoListProvider extends ViewStateProvider {
         _todoUserId = id;
         changeSelectedIndex(0);
       }
+      fetchComplete();
       stopLoader();
       return ViewResponse(data: "Fetching todo lists successful");
     } on Failure catch (failure) {
