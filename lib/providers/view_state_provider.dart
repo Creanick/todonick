@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-enum ViewState { initial, loading, idle }
+enum ViewState { initial, initialLoading, loading, idle }
 
 class ViewStateProvider with ChangeNotifier {
   ViewState _state = ViewState.initial;
@@ -8,6 +8,10 @@ class ViewStateProvider with ChangeNotifier {
   void setState(ViewState state) {
     _state = state;
     notifyListeners();
+  }
+
+  void startInitialLoader() {
+    setState(ViewState.initialLoading);
   }
 
   void startLoader() {

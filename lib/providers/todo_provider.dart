@@ -47,8 +47,7 @@ class TodoProvider extends ViewStateProvider {
       return ViewResponse(
           error: true, message: "User or user list is no available");
     try {
-      print("fetching");
-      startLoader();
+      startInitialLoader();
       final List<Todo> todosList =
           await _databaseService.getTodos(userId: _userId, listId: _listId);
       if (todos != null || todos.isNotEmpty) {
@@ -77,18 +76,21 @@ class TodoProvider extends ViewStateProvider {
     if (index >= todos.length)
       return ViewResponse(error: true, message: "Something went wrong");
     final Todo updatableTodo = _todos[index];
+    final bool completeOrNot = updatableTodo.completed;
     updatableTodo.toggleComplete();
+    print(completeOrNot);
     try {
       startLoader();
       await _databaseService.updateTodo(
           userId: _userId,
           listId: _listId,
           todoId: updatableTodo.id,
-          completed: !updatableTodo.completed);
+          completed: !completeOrNot);
       stopLoader();
       return ViewResponse(message: "Todo completed successfully");
     } on Failure catch (failure) {
       updatableTodo.toggleComplete();
+      print(failure);
       return ViewResponse.fromFailure(failure);
     }
   }

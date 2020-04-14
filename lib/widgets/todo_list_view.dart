@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
 import 'package:todonick/models/todo.dart';
 import 'package:todonick/providers/todo_provider.dart';
+import 'package:todonick/providers/view_state_provider.dart';
 import 'package:todonick/widgets/todo_tile.dart';
 
 class TodoListView extends StatefulWidget {
@@ -14,44 +15,52 @@ class _TodoListViewState extends State<TodoListView> {
   @override
   Widget build(BuildContext context) {
     final TodoProvider todoProvider = Provider.of<TodoProvider>(context);
-    final List<Todo> todos = todoProvider.todos;
+    final List<Todo> todos = todoProvider?.todos;
     final List<TodoTile> nonCompletedTodoTile = [];
     final List<TodoTile> completedTodoTile = [];
-    for (int i = 0; i < todos.length; i++) {
-      final todo = todos[i];
-      if (todo.completed) {
-        completedTodoTile.add(TodoTile(todo, i));
-      } else {
-        nonCompletedTodoTile.add(TodoTile(todo, i));
+    if (todoProvider != null) {
+      for (int i = 0; i < todos.length; i++) {
+        final todo = todos[i];
+        if (todo.completed) {
+          completedTodoTile.add(TodoTile(todo, i));
+        } else {
+          nonCompletedTodoTile.add(TodoTile(todo, i));
+        }
       }
     }
-    return todos == null || todos.isEmpty
-        ? Center(child: Text("No Todos"))
-        : ListView.builder(
-            itemBuilder: (ctx, index) {
-              final int nonLength = nonCompletedTodoTile.length;
-              if (index < nonLength) {
-                return nonCompletedTodoTile[index];
-              }
-              if (index == nonLength) {
-                return ListTile(
-                    trailing: IconButton(
-                      icon: Icon(
-                          isExpanded ? Icons.expand_less : Icons.expand_more),
-                      onPressed: () {
-                        setState(() {
-                          isExpanded = !isExpanded;
-                        });
-                      },
-                    ),
-                    title: Text("Completed (${completedTodoTile.length})"));
-              }
-              final completedIndex = index - nonLength - 1;
-              return completedTodoTile[completedIndex];
-            },
-            itemCount: nonCompletedTodoTile.length +
-                (completedTodoTile.isEmpty
-                    ? 0
-                    : ((isExpanded ? completedTodoTile.length : 0) + 1)));
+    return todoProvider == null ||
+            todoProvider.state == ViewState.initialLoading
+        ? Center(
+            child: CircularProgressIndicator(),
+          )
+        : todos == null || todos.isEmpty
+            ? Center(child: Text("No Todos"))
+            : ListView.builder(
+                itemBuilder: (ctx, index) {
+                  final int nonLength = nonCompletedTodoTile.length;
+                  if (index < nonLength) {
+                    return nonCompletedTodoTile[index];
+                  }
+                  if (index == nonLength) {
+                    return ListTile(
+                        trailing: IconButton(
+                          icon: Icon(isExpanded
+                              ? Icons.expand_less
+                              : Icons.expand_more),
+                          onPressed: () {
+                            setState(() {
+                              isExpanded = !isExpanded;
+                            });
+                          },
+                        ),
+                        title: Text("Completed (${completedTodoTile.length})"));
+                  }
+                  final completedIndex = index - nonLength - 1;
+                  return completedTodoTile[completedIndex];
+                },
+                itemCount: nonCompletedTodoTile.length +
+                    (completedTodoTile.isEmpty
+                        ? 0
+                        : ((isExpanded ? completedTodoTile.length : 0) + 1)));
   }
 }
