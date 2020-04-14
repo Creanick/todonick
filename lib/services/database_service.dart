@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:todonick/helpers/failure.dart';
-import 'package:todonick/helpers/view_response.dart';
+import 'package:todonick/models/todo.dart';
 import 'package:todonick/models/todo_list.dart';
 import 'package:todonick/models/user.dart';
 
@@ -9,8 +9,30 @@ class DatabaseService {
   Firestore _store = Firestore.instance;
   CollectionReference _userCollection;
   final String todoListCollectionName = "todoLists";
+  final String todoCollectionName = "todos";
   DatabaseService([String userCollectionPath = "users"]) {
     _userCollection = _store.collection(userCollectionPath);
+  }
+
+  DocumentReference getUserDocument(String userId) {
+    return _userCollection.document(userId);
+  }
+
+  CollectionReference getListCollection(String userId) {
+    return getUserDocument(userId).collection(todoListCollectionName);
+  }
+
+  DocumentReference getListDocument(String userId, String listId) {
+    return getListCollection(userId).document(listId);
+  }
+
+  CollectionReference getTodoCollection(String userId, String listId) {
+    return getListDocument(userId, listId).collection(todoCollectionName);
+  }
+
+  DocumentReference getTodoDocument(
+      String userId, String listId, String todoId) {
+    return getTodoCollection(userId, listId).document(todoId);
   }
 
   Future<User> createUser(
@@ -98,6 +120,43 @@ class DatabaseService {
           .delete();
     } catch (error) {
       throw Failure("Todo list deletion failed");
+    }
+  }
+
+  //todo database service
+  Future<Todo> createTodo(
+      {@required String userId,
+      @required String listId,
+      String name,
+      String details = ""}) async {
+    if (userId == null || listId == null || name == null)
+      throw Failure("Todo creation not possible due to insufficient data");
+    try {
+      final DocumentReference docRef =
+          getTodoCollection(userId, listId).document();
+      final Todo todo =
+          Todo(id: docRef.documentID, name: name, details: details);
+      await docRef.setData(todo.toMap());
+      return todo;
+    } catch (error) {
+      throw Failure("Todo creation failed");
+    }
+  }
+
+  Future<List<Todo>> getTodos(
+      {@required String userId, @required String listId}) async {
+    if (userId == null || listId == null) {
+      throw Failure("Fetching todos not possible due to shortage of data");
+    }
+    try {
+      final QuerySnapshot querySnapshot =
+          await getTodoCollection(userId, listId).getDocuments();
+      if (querySnapshot == null) return [];
+      return querySnapshot.documents.map((docSnap) {
+        return Todo.fromMap(docSnap.documentID, docSnap.data);
+      }).toList();
+    } catch (error) {
+      throw Failure("Fetching todos failed");
     }
   }
 }
