@@ -77,6 +77,7 @@ class TodoProvider extends ViewStateProvider {
     if (index >= todos.length)
       return ViewResponse(error: true, message: "Something went wrong");
     final Todo updatableTodo = _todos[index];
+    updatableTodo.toggleComplete();
     try {
       startLoader();
       await _databaseService.updateTodo(
@@ -84,10 +85,10 @@ class TodoProvider extends ViewStateProvider {
           listId: _listId,
           todoId: updatableTodo.id,
           completed: !updatableTodo.completed);
-      updatableTodo.toggleComplete();
       stopLoader();
       return ViewResponse(message: "Todo completed successfully");
     } on Failure catch (failure) {
+      updatableTodo.toggleComplete();
       return ViewResponse.fromFailure(failure);
     }
   }
