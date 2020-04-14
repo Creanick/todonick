@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
 import 'package:todonick/models/todo_list.dart';
+import 'package:todonick/providers/auth_user_provider.dart';
 import 'package:todonick/providers/todo_list_provider.dart';
 import 'package:todonick/providers/todo_provider.dart';
 import 'package:todonick/providers/view_state_provider.dart';
@@ -31,8 +32,17 @@ class HomeScreen extends StatelessWidget {
       case ListPopMenuNames.deleteList:
         deleteSelectedList(context);
         break;
+      case ListPopMenuNames.signOut:
+        signOutUser(context);
+        break;
       default:
     }
+  }
+
+  void signOutUser(BuildContext context) {
+    final AuthUserProvider authUserProvider =
+        Provider.of<AuthUserProvider>(context, listen: false);
+    authUserProvider.signOutUser();
   }
 
   void deleteSelectedList(BuildContext context) {
