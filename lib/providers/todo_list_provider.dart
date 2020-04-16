@@ -14,12 +14,19 @@ class TodoListProvider extends ViewStateProvider with Fetchable {
   int _selectedIndex = -1;
   String _todoUserId;
   List<TodoProvider> _todoProviderList = [];
+  TodoList get selectedTodoList => _selectedIndex > -1 &&
+          _selectedIndex < _listOfTodoList.length &&
+          _listOfTodoList.isNotEmpty
+      ? _listOfTodoList[_selectedIndex]
+      : null;
+  List<TodoProvider> get todoProviderList => _todoProviderList;
   String get todoUserId => _todoUserId;
   int get selectedIndex => _selectedIndex;
-  TodoProvider getTodoProvider([int index]) =>
-      _selectedIndex > -1 && _selectedIndex < _todoProviderList.length
-          ? _todoProviderList[selectedIndex]
-          : null;
+  TodoProvider getSelectedTodoProvider() => _selectedIndex > -1 &&
+          _selectedIndex < _todoProviderList.length &&
+          _todoProviderList.isNotEmpty
+      ? _todoProviderList[selectedIndex]
+      : null;
   void changeSelectedIndex(int index) async {
     if (index >= _listOfTodoList.length) return;
     _selectedIndex = index;
@@ -28,6 +35,18 @@ class TodoListProvider extends ViewStateProvider with Fetchable {
       await _todoProviderList[index].fetchTodos();
     }
     notifyListeners();
+  }
+
+  //reset
+  void reset({bool notify = false}) {
+    _listOfTodoList = [];
+    _selectedIndex = -1;
+    _todoUserId = null;
+    _todoProviderList = [];
+    isAlreadyFetched = false;
+    if (notify) {
+      notifyListeners();
+    }
   }
 
   TodoListProvider([String userId])
@@ -43,7 +62,7 @@ class TodoListProvider extends ViewStateProvider with Fetchable {
     if (id == null)
       return ViewResponse(error: true, message: "User is not avalaible");
     try {
-      startLoader();
+      startInitialLoader();
       final list = await _databaseService.getTodoLists(id);
       if (list != null || list.isNotEmpty) {
         _listOfTodoList = list;
