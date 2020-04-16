@@ -4,6 +4,7 @@ import 'package:todonick/models/todo_list.dart';
 import 'package:todonick/providers/auth_user_provider.dart';
 import 'package:todonick/providers/todo_list_provider.dart';
 import 'package:todonick/providers/todo_provider.dart';
+import 'package:todonick/providers/todo_user_provider.dart';
 import 'package:todonick/providers/view_state_provider.dart';
 import 'package:todonick/widgets/todo_create_modal.dart';
 import 'package:todonick/widgets/todo_list_view.dart';
@@ -24,7 +25,9 @@ class ListPopMenuNames {
 class HomeScreen extends StatelessWidget {
   static const String routeName = "/home-screen";
 
-  void showListBottomSheet(BuildContext ctx) {
+  void showListBottomSheet(
+    BuildContext ctx,
+  ) {
     showModalBottomSheet(context: ctx, builder: (_) => UserListModal());
   }
 
@@ -60,74 +63,73 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TodoListProvider todoListProvider =
-        Provider.of<TodoListProvider>(context);
-    final List<TodoList> todoLists = todoListProvider.todoLists;
-    final TodoList selectedTodoList = todoLists.isEmpty
-        ? null
-        : todoLists[todoListProvider.selectedIndex < todoLists.length
-            ? todoListProvider.selectedIndex
-            : 0];
-    return ChangeNotifierProvider<TodoProvider>.value(
-      value: todoListProvider.getTodoProvider(),
-      child: Scaffold(
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerDocked,
-          floatingActionButton:
-              Consumer<TodoProvider>(builder: (ctx, todoProvider, c) {
-            return FloatingActionButton(
-              child: Icon(Icons.add),
-              onPressed: () {
-                showModalBottomSheet(
-                    isScrollControlled: true,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    context: context,
-                    builder: (_) => ChangeNotifierProvider.value(
-                        value: todoProvider, child: TodoCreateModal()));
-              },
-            );
-          }),
-          appBar: todoLists.isEmpty
-              ? null
-              : AppBar(
-                  centerTitle: true,
-                  title: Text(selectedTodoList?.name?.capitalize() ?? ""),
-                  elevation: 0,
-                  // backgroundColor: Colors.white,
-                  // textTheme: Theme.of(context)
-                  //     .textTheme
-                  //     .copyWith(title: TextStyle(color: Colors.black, fontSize: 20)),
+    return Consumer2<TodoUserProvider, TodoListProvider>(
+        builder: (ctx, todoUserProvider, todoListProvider, ch) {
+      final TodoList selectedTodoList =
+          todoListProvider.selectedTodoList; //selected todo list can be null
+      final TodoProvider selectedTodoProvider = todoListProvider
+          .getSelectedTodoProvider(); //todo provider can be null
+      return todoListProvider.state == ViewState.initialLoading
+          //todo list provider state can be in initial loading
+          ? Scaffold(body: Center(child: CircularProgressIndicator()))
+          : Scaffold(
+              appBar: selectedTodoList == null
+                  ? null
+                  : AppBar(
+                      centerTitle: true,
+                      title: Text(selectedTodoList.name),
+                      elevation: 0,
+                      // backgroundColor: Colors.white,
+                      // textTheme: Theme.of(context)
+                      //     .textTheme
+                      //     .copyWith(title: TextStyle(color: Colors.black, fontSize: 20)),
+                    ),
+              floatingActionButtonLocation:
+                  FloatingActionButtonLocation.centerDocked,
+              floatingActionButton: FloatingActionButton(
+                child: Icon(Icons.add),
+                onPressed: selectedTodoProvider == null
+                    ? null
+                    : () {
+                        showModalBottomSheet(
+                            isScrollControlled: true,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            context: context,
+                            builder: (_) => ChangeNotifierProvider.value(
+                                value: selectedTodoProvider,
+                                child: TodoCreateModal()));
+                      },
+              ),
+              bottomNavigationBar: BottomAppBar(
+                shape: CircularNotchedRectangle(),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    IconButton(
+                        icon: Icon(Icons.menu),
+                        onPressed: () => showListBottomSheet(ctx)),
+                    PopupMenuButton<String>(
+                      enabled: todoListProvider.todoLists.isNotEmpty,
+                      onSelected: (String menuName) =>
+                          popMenuHandler(context, menuName),
+                      itemBuilder: (ctx) {
+                        return ListPopMenuNames.nameLists.map((name) {
+                          return PopupMenuItem<String>(
+                              child: Text(name, style: TextStyle(fontSize: 14)),
+                              value: name);
+                        }).toList();
+                      },
+                    )
+                  ],
                 ),
-          bottomNavigationBar: BottomAppBar(
-            shape: CircularNotchedRectangle(),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.menu),
-                  onPressed: () => showListBottomSheet(context),
-                ),
-                PopupMenuButton<String>(
-                  enabled: todoLists.isNotEmpty,
-                  onSelected: (String menuName) =>
-                      popMenuHandler(context, menuName),
-                  itemBuilder: (ctx) {
-                    return ListPopMenuNames.nameLists.map((name) {
-                      return PopupMenuItem<String>(
-                          child: Text(name, style: TextStyle(fontSize: 14)),
-                          value: name);
-                    }).toList();
-                  },
-                )
-              ],
-            ),
-          ),
-          body: todoListProvider.state == ViewState.loading
-              ? Center(child: CircularProgressIndicator())
-              : Center(
-                  child: TodoListView(),
-                )),
-    );
+              ),
+              body: Center(
+                child: selectedTodoProvider == null
+                    ? Center(child: Text("No Todo List available"))
+                    : ChangeNotifierProvider.value(
+                        child: TodoListView(), value: selectedTodoProvider),
+              ));
+    });
   }
 }
