@@ -28,11 +28,8 @@ class _TodoListViewState extends State<TodoListView> {
         }
       }
     }
-    return todoProvider == null ||
-            todoProvider.state == ViewState.initialLoading
-        ? Center(
-            child: CircularProgressIndicator(),
-          )
+    return todoProvider.state == ViewState.initialLoading
+        ? Center(child: CircularProgressIndicator())
         : todos == null || todos.isEmpty
             ? Center(child: Text("No Todos"))
             : ListView.builder(
