@@ -39,7 +39,10 @@ class TodoPreviewScreen extends StatelessWidget {
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.delete, color: Colors.red),
-              onPressed: () {},
+              onPressed: () {
+                todoProvider.deleteTodo(todoIndex);
+                Navigator.pop(context);
+              },
             )
           ],
         ),

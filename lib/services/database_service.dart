@@ -191,4 +191,18 @@ class DatabaseService {
       throw Failure("compeleting todo failed");
     }
   }
+
+  Future<void> deleteTodo({
+    @required userId,
+    @required String listId,
+    @required String todoId,
+  }) async {
+    if (userId == null || listId == null || todoId == null)
+      throw Failure("userid or list id is not provided");
+    try {
+      await getTodoDocument(userId, listId, todoId).delete();
+    } catch (error) {
+      throw Failure("todo deletion failed");
+    }
+  }
 }
