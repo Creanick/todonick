@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
 import 'package:todonick/models/todo.dart';
 import 'package:todonick/providers/todo_provider.dart';
+import 'package:todonick/screens/todo_preview_screen.dart';
 
 class TodoTile extends StatelessWidget {
   final Todo todo;
@@ -11,6 +12,13 @@ class TodoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final TodoProvider todoProvider = Provider.of<TodoProvider>(context);
     return ListTile(
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (ctx) => ChangeNotifierProvider.value(
+                      value: todoProvider, child: TodoPreviewScreen(index))));
+        },
         leading: IconButton(
           icon: Icon(
             todo.completed ? Icons.check : Icons.radio_button_unchecked,
@@ -23,6 +31,10 @@ class TodoTile extends StatelessWidget {
             }
           },
         ),
-        title: Text(todo.name));
+        title: Text(todo.name,
+            style: TextStyle(
+                decoration: todo.completed
+                    ? TextDecoration.lineThrough
+                    : TextDecoration.none)));
   }
 }
