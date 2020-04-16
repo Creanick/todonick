@@ -12,10 +12,7 @@ class TodoProvider extends ViewStateProvider {
   String _listId;
   List<Todo> _todos = [];
   List<Todo> get todos => _todos;
-  Todo getTodo(int index) =>
-      index > 0 && index < _todos.length && _todos.isNotEmpty
-          ? _todos[index]
-          : null;
+  Todo getTodo(int index) => _todos[index];
   bool isFetchedAlready = false;
 
   bool get isUserIdAvailable => _userId != null;
@@ -95,6 +92,24 @@ class TodoProvider extends ViewStateProvider {
     } on Failure catch (failure) {
       updatableTodo.toggleComplete();
       print(failure);
+      return ViewResponse.fromFailure(failure);
+    }
+  }
+
+  Future<ViewResponse<void>> deleteTodo(int index) async {
+    if (index >= todos.length) {
+      return ViewResponse(error: true, message: "Something went wrong");
+    }
+    final removedTodo = _todos.removeAt(index);
+    try {
+      startLoader();
+      await _databaseService.deleteTodo(
+          userId: _userId, listId: _listId, todoId: removedTodo.id);
+      stopLoader();
+      return ViewResponse(message: "Deleting todo succesful");
+    } on Failure catch (failure) {
+      _todos.insert(index, removedTodo);
+      stopLoader();
       return ViewResponse.fromFailure(failure);
     }
   }
