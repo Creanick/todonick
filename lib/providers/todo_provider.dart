@@ -12,6 +12,10 @@ class TodoProvider extends ViewStateProvider {
   String _listId;
   List<Todo> _todos = [];
   List<Todo> get todos => _todos;
+  Todo getTodo(int index) =>
+      index > 0 && index < _todos.length && _todos.isNotEmpty
+          ? _todos[index]
+          : null;
   bool isFetchedAlready = false;
 
   bool get isUserIdAvailable => _userId != null;
