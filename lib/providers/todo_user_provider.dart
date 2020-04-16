@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:todonick/helpers/failure.dart';
+import 'package:todonick/helpers/fetchable.dart';
 import 'package:todonick/helpers/view_response.dart';
 import 'package:todonick/models/user.dart';
 import 'package:todonick/providers/view_state_provider.dart';
@@ -9,13 +10,20 @@ import 'package:todonick/service_locator.dart';
 import 'package:todonick/services/database_service.dart';
 import 'package:todonick/services/storage_service.dart';
 
-class TodoUserProvider extends ViewStateProvider {
+class TodoUserProvider extends ViewStateProvider with Fetchable {
   DatabaseService _databaseService = locator<DatabaseService>();
   User _user;
   User get user => _user;
 
   void clearUser() {
     _user = null;
+  }
+
+  void reset({bool notify = false}) {
+    clearUser();
+    if (notify) {
+      notifyListeners();
+    }
   }
 
   TodoUserProvider([String id]) {
@@ -42,11 +50,13 @@ class TodoUserProvider extends ViewStateProvider {
   }
 
   Future<ViewResponse<void>> fetchUser(String id) async {
+    if (isAlreadyFetched) return null;
     if (id == null) return ViewResponse();
     startLoader();
     try {
       final User user = await _databaseService.getUser(id);
       _setUser(user);
+      isAlreadyFetched = true;
       return ViewResponse();
     } on Failure catch (failure) {
       stopLoader();
