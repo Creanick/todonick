@@ -26,40 +26,41 @@ class _TodoCreateModalState extends State<TodoCreateModal> {
   Widget build(BuildContext context) {
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final TodoProvider todoProvider = Provider.of<TodoProvider>(context);
-    print(todoProvider.state);
-    return Container(
-        height: 140 + keyboardHeight,
-        padding:
-            const EdgeInsets.only(top: 10, left: 20, bottom: 20, right: 20),
-        child: Column(
-          children: <Widget>[
-            TextField(
-              autofocus: true,
-              controller: _nameController,
-              decoration: InputDecoration(
-                  hintText: "New Todo", border: InputBorder.none),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return todoProvider == null
+        ? Center(child: CircularProgressIndicator())
+        : Container(
+            height: 140 + keyboardHeight,
+            padding:
+                const EdgeInsets.only(top: 10, left: 20, bottom: 20, right: 20),
+            child: Column(
               children: <Widget>[
-                Icon(Icons.event_available),
-                FlatButton(
-                  child: Text("Save", style: TextStyle(color: Colors.blue)),
-                  onPressed: todoProvider.state == ViewState.loading
-                      ? null
-                      : () async {
-                          final name = _nameController.text;
-                          if (name == null || name.isEmpty) return;
-                          final response =
-                              await todoProvider.createTodo(name: name);
-                          Navigator.pop(context, !response.error);
-                        },
-                )
+                TextField(
+                  autofocus: true,
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                      hintText: "New Todo", border: InputBorder.none),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Icon(Icons.event_available),
+                    FlatButton(
+                      child: Text("Save", style: TextStyle(color: Colors.blue)),
+                      onPressed: todoProvider.state == ViewState.loading
+                          ? null
+                          : () async {
+                              final name = _nameController.text;
+                              if (name == null || name.isEmpty) return;
+                              final response =
+                                  await todoProvider.createTodo(name: name);
+                              Navigator.pop(context, !response.error);
+                            },
+                    )
+                  ],
+                ),
+                if (todoProvider.state == ViewState.loading)
+                  SizedBox(height: 4, child: LinearProgressIndicator())
               ],
-            ),
-            if (todoProvider.state == ViewState.loading)
-              SizedBox(height: 4, child: LinearProgressIndicator())
-          ],
-        ));
+            ));
   }
 }
