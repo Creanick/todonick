@@ -110,12 +110,14 @@ class HomeScreen extends StatelessWidget {
                         icon: Icon(Icons.menu),
                         onPressed: () => showListBottomSheet(ctx)),
                     PopupMenuButton<String>(
-                      enabled: todoListProvider.todoLists.isNotEmpty,
                       onSelected: (String menuName) =>
                           popMenuHandler(context, menuName),
                       itemBuilder: (ctx) {
                         return ListPopMenuNames.nameLists.map((name) {
                           return PopupMenuItem<String>(
+                              enabled: todoListProvider.todoLists.isNotEmpty ||
+                                  (todoListProvider.todoLists.isEmpty &&
+                                      name == ListPopMenuNames.signOut),
                               child: Text(name, style: TextStyle(fontSize: 14)),
                               value: name);
                         }).toList();
