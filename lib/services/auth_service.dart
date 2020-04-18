@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:todonick/helpers/failure.dart';
 
 class AuthService {
@@ -12,6 +13,8 @@ class AuthService {
       return (await _auth.createUserWithEmailAndPassword(
               email: email, password: password))
           .user;
+    } on PlatformException catch (p) {
+      throw Failure(p.message);
     } catch (error) {
       throw Failure("sign up failed");
     }
@@ -24,6 +27,8 @@ class AuthService {
       return (await _auth.signInWithEmailAndPassword(
               email: email, password: password))
           .user;
+    } on PlatformException catch (p) {
+      throw Failure(p.message);
     } catch (error) {
       throw Failure("sign in faiiled");
     }
@@ -33,6 +38,8 @@ class AuthService {
   Future<void> signOut() async {
     try {
       await _auth.signOut();
+    } on PlatformException catch (p) {
+      throw Failure(p.message);
     } catch (error) {
       throw Failure("sign out failed");
     }
