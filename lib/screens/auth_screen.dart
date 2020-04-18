@@ -5,6 +5,17 @@ import 'package:todonick/providers/auth_user_provider.dart';
 import 'package:todonick/providers/view_state_provider.dart';
 import 'package:todonick/screens/splash_screen.dart';
 
+const inputStyle = InputDecoration(
+  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+  border: OutlineInputBorder(
+    borderSide: BorderSide(width: 0, style: BorderStyle.none),
+    borderRadius: const BorderRadius.all(
+      const Radius.circular(10.0),
+    ),
+  ),
+  filled: true,
+);
+
 class AuthScreen extends StatefulWidget {
   static const String routeName = "/auth-screen";
 
@@ -54,34 +65,30 @@ class _AuthScreenState extends State<AuthScreen> {
                           SizedBox(
                             height: 20,
                           ),
-                          CupertinoTextField(
-                            placeholder: "Enter your name",
-                            padding: const EdgeInsets.all(20),
-                          ),
+                          TextFormField(
+                              decoration: inputStyle.copyWith(
+                                  hintText: "Enter Your Name")),
                           SizedBox(
                             height: 20,
                           ),
                         ],
                       ),
-                    CupertinoTextField(
-                      placeholder: "Enter your email",
-                      padding: const EdgeInsets.all(20),
-                    ),
+                    TextFormField(
+                        decoration:
+                            inputStyle.copyWith(hintText: "Enter Your Email")),
                     SizedBox(
                       height: 20,
                     ),
-                    CupertinoTextField(
-                      placeholder: "Enter your Password",
-                      padding: const EdgeInsets.all(20),
-                    ),
+                    TextFormField(
+                        decoration: inputStyle.copyWith(
+                            hintText: "Enter Your Password")),
                     SizedBox(
                       height: 20,
                     ),
                     if (!isLoginView)
-                      CupertinoTextField(
-                        placeholder: "confirm your Password",
-                        padding: const EdgeInsets.all(20),
-                      ),
+                      TextFormField(
+                          decoration: inputStyle.copyWith(
+                              hintText: "Confirm Your Password")),
                     if (!isLoginView)
                       SizedBox(
                         height: 20,
