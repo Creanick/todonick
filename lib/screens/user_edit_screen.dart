@@ -98,7 +98,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
                   ));
                 } else {
                   _nameController.clear();
-                  _nameController.dispose();
                   Navigator.pop(context);
                 }
               },

@@ -85,10 +85,24 @@ class _AuthScreenState extends State<AuthScreen> {
                         children: <Widget>[
                           SizedBox(
                             width: double.infinity,
-                            child: CupertinoButton(
-                              child: Text("Sign In with google"),
-                              color: Colors.redAccent,
-                              onPressed: () {},
+                            child: Builder(
+                              builder: (ctx) => CupertinoButton(
+                                child: Text("Sign In with google"),
+                                color: Colors.redAccent,
+                                onPressed: authUserProvider.state ==
+                                        ViewState.loading
+                                    ? null
+                                    : () async {
+                                        final response = await authUserProvider
+                                            .signInWithGoogle();
+                                        if (response.error) {
+                                          Scaffold.of(ctx)
+                                              .showSnackBar(SnackBar(
+                                            content: Text(response.message),
+                                          ));
+                                        }
+                                      },
+                              ),
                             ),
                           ),
                           SizedBox(
