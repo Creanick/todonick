@@ -61,7 +61,8 @@ class DatabaseService {
     }
   }
 
-  Future<void> updateUser(String id, {String name, String profileUrl}) async {
+  Future<void> updateUser(String id,
+      {String name, String email, String profileUrl}) async {
     if (id == null) return;
     final Map<String, dynamic> updatedMap = {};
     if (name != null) {
@@ -70,9 +71,12 @@ class DatabaseService {
     if (profileUrl != null) {
       updatedMap['profileUrl'] = profileUrl;
     }
+    if (email != null) {
+      updatedMap['email'] = email;
+    }
     if (updatedMap.isEmpty) return;
     try {
-      await _userCollection.document(id).updateData(updatedMap);
+      await _userCollection.document(id).setData(updatedMap, merge: true);
     } catch (error) {
       print(error);
       throw Failure("updating user failed");
