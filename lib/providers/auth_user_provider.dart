@@ -59,6 +59,21 @@ class AuthUserProvider extends ViewStateProvider {
     }
   }
 
+  Future<ViewResponse<String>> signInWithGoogle() async {
+    try {
+      startLoader();
+      final FirebaseUser user = await _authService.signInWithGoogle();
+      await _databaseService.updateUser(user.uid,
+          name: user.displayName, email: user.email, profileUrl: user.photoUrl);
+      _addUser(user);
+      stopLoader();
+      return ViewResponse(message: "Google Sign in successful");
+    } on Failure catch (failure) {
+      stopLoader();
+      return ViewResponse.fromFailure(failure);
+    }
+  }
+
   Future<ViewResponse<String>> signInUser(
       {@required String email, @required String password}) async {
     try {
